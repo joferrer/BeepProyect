@@ -1,4 +1,4 @@
-import { obtenerAsistentes, registrarAsistente } from "../../firebase/db";
+import { asignarRFID, obtenerAsistentes, registrarAsistente } from "../../firebase/db";
 import { Router } from "express";
 
 export const asistentesRouter = Router();
@@ -33,3 +33,26 @@ asistentesRouter.post("/asistente", async (req, res) => {
         res.status(500).json({ error: "Error al registrar asistente" });
     }
 })
+
+asistentesRouter.patch("/asignacionRfid/:id", async (req, res) => {
+    const { id } = req.params;
+    const { rfid } = req.body;
+    
+    if (!rfid) {
+         res.status(400).json({ error: "RFID es requerido" });
+         return;
+    }
+    
+    try {
+        const asignado = await asignarRFID(id, rfid);
+        if (asignado) {
+        res.status(200).json({ message: "RFID asignado exitosamente" });
+        } else {
+        res.status(500).json({ error: "Error al asignar RFID" });
+        }
+    } catch (error) {
+        console.error("Error al asignar RFID:", error);
+        res.status(500).json({ error: "Error al asignar RFID" });
+    }
+})
+

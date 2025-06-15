@@ -50,3 +50,15 @@ export const obtenerAsistentes = async () => {
         return [];
     }
 }
+
+export const asignarRFID = async (id: string, rfid: string) => {
+    try {
+        const docRef = collectionRef.doc(id);
+        await docRef.update({ RFID: rfid });
+        console.log(`RFID ${rfid} asignado al asistente con ID ${id}`);
+        return true;
+    } catch (error) {
+        console.error('Error al asignar RFID:', error);
+        return false;
+    }
+}

@@ -1,4 +1,4 @@
-import { UsuarioService } from "./UsuarioService.js";
+import { UsuarioService } from "./usuarioService.js";
 
 const buscador = document.getElementById("buscador");
 const sugerencias = document.getElementById("sugerencias");
@@ -15,7 +15,11 @@ let procesando = false;
 let sugerenciasItems = [];
 let indiceSeleccionado = -1;
 
+const loader = document.getElementById("loader");
+
 buscador.disabled = true;
+loader.style.display = "flex";
+
 UsuarioService.cargarUsuarios()
   .then(() => {
     buscador.disabled = false;
@@ -23,9 +27,12 @@ UsuarioService.cargarUsuarios()
   .catch((err) => {
     console.error("Error cargando usuarios:", err);
     alert("Error cargando los datos de usuarios.");
+  })
+  .finally(() => {
+    loader.style.display = "none";
   });
 
-// Buscador con flechas
+// Navegación con teclas
 buscador.addEventListener("keydown", (e) => {
   if (sugerencias.classList.contains("hidden")) return;
 
@@ -44,16 +51,16 @@ buscador.addEventListener("keydown", (e) => {
   } else if (e.key === "Enter") {
     e.preventDefault();
     if (indiceSeleccionado >= 0) {
-      sugerenciasItems[indiceSeleccionado].click();
-    } else {
-      const primerItem = sugerencias.querySelector("li");
-      if (primerItem) primerItem.click();
+      sugerenciasItems[indiceSeleccionado].element.click();
+    } else if (sugerenciasItems.length > 0) {
+      sugerenciasItems[0].element.click();
     }
   }
 });
 
+// Entrada en el buscador
 buscador.addEventListener("input", () => {
-  const texto = buscador.value.toLowerCase().trim();
+  const texto = buscador.value.trim();
   sugerencias.innerHTML = "";
   sugerenciasItems = [];
   indiceSeleccionado = -1;
@@ -69,46 +76,76 @@ buscador.addEventListener("input", () => {
     sugerencias.innerHTML =
       '<li class="px-4 py-2 text-gray-500">No encontrado</li>';
   } else {
+    const regex = new RegExp(`(${texto})`, "gi");
+
     filtrados.forEach((u) => {
       const li = document.createElement("li");
       li.className = "px-4 py-2 hover:bg-gray-100 cursor-pointer";
-      li.textContent = `${u.NOMBRE_Y_APELLIDOS} - ${u.CEDULA}`;
+
+      // Resaltar coincidencia en nombre
+      const nombreResaltado = (u.NOMBRE_Y_APELLIDOS || "").replace(
+        regex,
+        '<span class="text-blue-600 font-semibold">$1</span>'
+      );
+
+      // Resaltar coincidencia en cédula
+      const cedulaStr = String(u.CEDULA);
+      const cedulaResaltada = cedulaStr.replace(
+        regex,
+        '<span class="text-blue-600 font-semibold">$1</span>'
+      );
+
+      li.innerHTML = `${nombreResaltado} - <span class="text-gray-500">${cedulaResaltada}</span>`;
+
       li.addEventListener("click", () => {
-        buscador.value = `${u.NOMBRE_Y_APELLIDOS} - ${u.CEDULA}`;
-        buscador.readOnly = true;
-        sugerencias.classList.add("hidden");
-
-        nombreInfo.textContent = u.NOMBRE_Y_APELLIDOS;
-        documentoInfo.textContent = u.CEDULA;
-        areaInfo.textContent = u.AREA_O_DEPENDENCIA || "-";
-        correoInfo.textContent = u.CORREO?.trim() || "-";
-
-        UsuarioService.seleccionarUsuario(u);
-
-        inputRFID.disabled = false;
-        inputRFID.placeholder = "Escanee la escarapela...";
-        inputRFID.classList.remove("text-gray-500");
-        inputRFID.classList.add("text-gray-800");
-        inputRFID.focus();
-
-        cambiarBtn.classList.remove("hidden");
+        seleccionarUsuario(u, li);
       });
-
       sugerencias.appendChild(li);
-      sugerenciasItems.push(li);
+      sugerenciasItems.push({ element: li, data: u });
     });
   }
 
   sugerencias.classList.remove("hidden");
 });
 
+function seleccionarUsuario(u) {
+  buscador.value = `${u.NOMBRE_Y_APELLIDOS} - ${u.CEDULA}`;
+  buscador.readOnly = true;
+  sugerencias.classList.add("hidden");
+
+  nombreInfo.textContent = u.NOMBRE_Y_APELLIDOS;
+  documentoInfo.textContent = u.CEDULA;
+  areaInfo.textContent = u.AREA_O_DEPENDENCIA || "-";
+  correoInfo.textContent = u.CORREO?.trim() || "-";
+
+  UsuarioService.seleccionarUsuario(u);
+
+  inputRFID.disabled = false;
+  inputRFID.placeholder = "Escanee la escarapela...";
+  inputRFID.classList.remove("text-gray-500");
+  inputRFID.classList.add("text-gray-800");
+  inputRFID.focus();
+
+  cambiarBtn.classList.remove("hidden");
+}
+
 function actualizarSeleccionVisual() {
   sugerenciasItems.forEach((item, index) => {
-    item.classList.toggle("bg-gray-200", index === indiceSeleccionado);
+    const el = item.element;
+    const seleccionado = index === indiceSeleccionado;
+
+    el.classList.toggle("bg-gray-200", seleccionado);
+
+    if (seleccionado) {
+      // Asegura que esté visible en el contenedor
+      el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
   });
 }
 
-cambiarBtn.addEventListener("click", () => {
+cambiarBtn.addEventListener("click", limpiarFormulario);
+
+function limpiarFormulario() {
   UsuarioService.limpiarSeleccion();
 
   buscador.value = "";
@@ -128,9 +165,9 @@ cambiarBtn.addEventListener("click", () => {
   feedback.textContent = "";
 
   buscador.focus();
-});
+}
 
-// RFID lectura
+// RFID listener
 let rfidBuffer = "";
 let lastRFIDTime = Date.now();
 
@@ -160,46 +197,23 @@ function procesarRFID(valor) {
   const usuario = UsuarioService.obtenerSeleccionado();
 
   if (!usuario) {
-    feedback.textContent = "⚠️ Selecciona primero un usuario.";
-    feedback.className =
-      "text-yellow-600 font-medium h-8 flex items-center transition-all duration-300 min-h-[2rem]";
+    mostrarFeedback("⚠️ Selecciona primero un usuario.", "text-yellow-600");
     return;
   }
 
   procesando = true;
   inputRFID.disabled = true;
-  feedback.textContent = "Procesando...";
-  feedback.className =
-    "text-blue-600 font-medium h-8 flex items-center transition-all duration-300 min-h-[2rem]";
+  mostrarFeedback("Procesando...", "text-blue-600");
 
   setTimeout(() => {
-    console.log("Enlazado:", {
-      rfid: valor,
-      ...usuario,
-    });
+    console.log("Enlazado:", { rfid: valor, ...usuario });
 
-    feedback.textContent = `✅ RFID ${valor} enlazado con ${usuario.NOMBRE_Y_APELLIDOS}`;
-    feedback.className =
-      "text-green-600 font-semibold h-8 flex items-center transition-all duration-300 min-h-[2rem]";
+    mostrarFeedback(
+      `✅ RFID ${valor} enlazado con ${usuario.NOMBRE_Y_APELLIDOS}`,
+      "text-green-600"
+    );
 
-    inputRFID.value = "";
-    inputRFID.disabled = true;
-    inputRFID.placeholder = "Esperando selección...";
-    inputRFID.classList.remove("text-gray-800");
-    inputRFID.classList.add("text-gray-500");
-
-    buscador.value = "";
-    buscador.readOnly = false;
-
-    UsuarioService.limpiarSeleccion();
-
-    nombreInfo.textContent = "-";
-    documentoInfo.textContent = "-";
-    areaInfo.textContent = "-";
-    correoInfo.textContent = "-";
-
-    cambiarBtn.classList.add("hidden");
-    procesando = false;
+    limpiarFormulario();
 
     setTimeout(() => {
       feedback.textContent = "";
@@ -207,14 +221,25 @@ function procesarRFID(valor) {
         "text-lg font-medium h-8 flex items-center transition-all duration-300 min-h-[2rem]";
     }, 1300);
 
-    buscador.focus();
+    procesando = false;
   }, 1500);
 }
 
+function mostrarFeedback(texto, clase) {
+  feedback.textContent = texto;
+  feedback.className = `${clase} font-medium h-8 flex items-center transition-all duration-300 min-h-[2rem]`;
+}
+
+// Forzar focus en input RFID
 setInterval(() => {
   if (!document.activeElement || document.activeElement !== inputRFID) {
-    if (!inputRFID.disabled) {
-      inputRFID.focus();
-    }
+    if (!inputRFID.disabled) inputRFID.focus();
   }
 }, 200);
+
+// Cerrar sugerencias si se hace clic fuera
+document.addEventListener("click", (e) => {
+  if (!sugerencias.contains(e.target) && e.target !== buscador) {
+    sugerencias.classList.add("hidden");
+  }
+});

@@ -1,4 +1,4 @@
-import { UsuarioService } from "./UsuarioService.js";
+import { UsuarioService } from "./usuarioService.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const scanBtn = document.getElementById("scan");
@@ -14,15 +14,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   let sugerenciasItems = [];
   let indiceSeleccionado = -1;
 
+  const loader = document.getElementById("loadingUsuarios");
+
   buscador.disabled = true;
-  try {
-    await UsuarioService.cargarUsuarios();
-    buscador.disabled = false;
-  } catch (err) {
-    console.error("Error cargando usuarios:", err);
-    alert("Error cargando los datos de usuarios.");
-    return;
-  }
+  loader.style.display = "flex";
+
+  UsuarioService.cargarUsuarios()
+    .then(() => {
+      buscador.disabled = false;
+    })
+    .catch((err) => {
+      console.error("Error cargando usuarios:", err);
+      alert("Error cargando los datos de usuarios.");
+    })
+    .finally(() => {
+      loader.style.display = "none";
+    });
 
   scanBtn.addEventListener("click", () => {
     modal.classList.remove("hidden");
@@ -42,6 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     feedbackModal.textContent = mensaje;
     UsuarioService.limpiarSeleccion();
     indiceSeleccionado = -1;
+    sugerencias.classList.add("hidden");
   }
 
   cerrarModal.addEventListener("click", () =>
@@ -80,10 +88,27 @@ document.addEventListener("DOMContentLoaded", async () => {
       sugerencias.innerHTML =
         '<li class="px-4 py-2 text-gray-500">No encontrado</li>';
     } else {
+      const regex = new RegExp(`(${texto})`, "gi");
+
       filtrados.forEach((u) => {
         const li = document.createElement("li");
         li.className = "px-4 py-2 hover:bg-gray-100 cursor-pointer";
-        li.textContent = `${u.NOMBRE_Y_APELLIDOS} - ${u.CEDULA}`;
+
+        // Resaltar coincidencia en nombre
+        const nombreResaltado = (u.NOMBRE_Y_APELLIDOS || "").replace(
+          regex,
+          '<span class="text-blue-600 font-semibold">$1</span>'
+        );
+
+        // Resaltar coincidencia en cédula
+        const cedulaStr = String(u.CEDULA);
+        const cedulaResaltada = cedulaStr.replace(
+          regex,
+          '<span class="text-blue-600 font-semibold">$1</span>'
+        );
+
+        li.innerHTML = `${nombreResaltado} - <span class="text-gray-500">${cedulaResaltada}</span>`;
+
         li.addEventListener("click", () => {
           seleccionarUsuario(u, li);
         });
@@ -138,15 +163,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function actualizarSeleccionVisual() {
     sugerenciasItems.forEach((item, index) => {
-      item.element.classList.toggle(
-        "bg-gray-200",
-        index === indiceSeleccionado
-      );
+      const el = item.element;
+      const seleccionado = index === indiceSeleccionado;
+
+      el.classList.toggle("bg-gray-200", seleccionado);
+
+      if (seleccionado) {
+        // Asegura que esté visible en el contenedor
+        el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
     });
   }
 
   document.addEventListener("click", (e) => {
-    if (!sugerencias.contains(e.target) && e.target !== buscador) {
+    if (
+      !sugerencias.contains(e.target) &&
+      e.target !== buscador &&
+      !modal.classList.contains("hidden")
+    ) {
       sugerencias.classList.add("hidden");
     }
   });

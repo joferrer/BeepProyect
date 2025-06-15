@@ -15,7 +15,7 @@ content-type: application/json
 }
 
 ### Asignar RFID
-PATCH http://localhost:3000/api/asignacionRfid/cgUadM5Y7huwyxz8uN10 HTTP/1.1
+PATCH http://localhost:3000/api/asignacionRfid/6Jc7W6ro8gM3wAKW968y HTTP/1.1
 content-type: application/json
 
 {
@@ -48,3 +48,11 @@ Content-Type: application/json
   "rfid": "A1B2C3D4E5",
   "mesa": "Mesa 1"
 }
+
+
+### Obtener asistencias locales
+GET http://localhost:3000/api/asistenciasLocales HTTP/1.1
+
+### Registrar asistencias locales en la base de datos
+PATCH http://localhost:3000/api/registrarAsistenciasLocalesEnDb HTTP/1.1
+Content-Type: application/json

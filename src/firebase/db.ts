@@ -107,3 +107,37 @@ export const registrarAsistencia = async (id: string, asistencia: { fecha: Date,
         return false;
     }
 }
+
+export const registrarAsistenciaPorRFID = async (rfid: string, asistencia: { fecha: Date, mesa: string }) => {
+    try {
+        const snapshot = await collectionRef.where('RFID', '==', rfid).get();
+
+        if (snapshot.empty) {
+            console.error('Asistente con RFID no encontrado');
+            return false;
+        }
+
+        const asistenteId = snapshot.docs[0].id;
+        return await registrarAsistencia(asistenteId, asistencia);
+    } catch (error) {
+        console.error('Error al registrar asistencia por RFID:', error);
+        return false;
+    }
+}
+
+export const registrarAsistenciaPorNombre = async (nombre: string, asistencia: { fecha: Date, mesa: string }) => {
+    try {
+        const snapshot = await collectionRef.where('NOMBRE_Y_APELLIDOS', '==', nombre).get();
+
+        if (snapshot.empty) {
+            console.error('Asistente con nombre no encontrado');
+            return false;
+        }
+
+        const asistenteId = snapshot.docs[0].id;
+        return await registrarAsistencia(asistenteId, asistencia);
+    } catch (error) {
+        console.error('Error al registrar asistencia por nombre:', error);
+        return false;
+    }
+}

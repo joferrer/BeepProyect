@@ -1,6 +1,7 @@
-import { asignarRFID, obtenerAsistentePorNombreOCedula, obtenerAsistentes, registrarAsistencia, registrarAsistente } from "../../firebase/db";
-import { Router } from "express";
-import { guardarAsistenciaLocal } from "./files";
+import { asignarRFID, obtenerAsistentePorNombreOCedula, obtenerAsistentes, registrarAsistencia, registrarAsistenciaPorNombre, registrarAsistenciaPorRFID, registrarAsistente } from "../../firebase/db";
+import  { Router } from "express";
+import { guardarAsistenciaLocal, obtenerAsistenciasLocales, registrarErroresEnElCargadoDeAsistencias } from "./files";
+import { AsistenciaLocal } from "../../interfaces";
 
 export const asistentesRouter = Router();
 
@@ -128,3 +129,67 @@ asistentesRouter.post("/registrarAsistenciaLocal", async (req, res) => {
         res.status(500).json({ error: "Error al guardar asistencia local" });
     }
 }) 
+
+asistentesRouter.get("/asistenciasLocales", async (_req, res) => {
+    try {
+        const asistenciasLocales = await obtenerAsistenciasLocales();
+        res.status(200).json(asistenciasLocales);
+    } catch (error) {
+        console.error("Error al obtener asistencias locales:", error);
+        res.status(500).json({ error: "Error al obtener asistencias locales" });
+    }
+})
+
+asistentesRouter.patch("/registrarAsistenciasLocalesEnDb", async (_req, res) => {
+    try {
+        const asistenciasLocales = await obtenerAsistenciasLocales();
+        if (asistenciasLocales.length === 0) {
+            res.status(404).json({ message: "No hay asistencias locales registradas" });
+            return;
+        }
+        let registrosExitosos = 0;
+        let registrosFallidos = 0;
+        let errores: AsistenciaLocal[] = [];
+
+        for (const asistencia of asistenciasLocales) {
+            let registroExitoso = false;
+            const { rfid, mesa, fecha, nombre } = asistencia;
+            // Aquí deberías implementar la lógica para registrar cada asistencia en la base de datos
+            // Por ejemplo, podrías llamar a una función que registre la asistencia en Firebase
+            // await registrarAsistenciaEnDb(rfid, mesa, fecha);
+            if(rfid){
+                registroExitoso = await registrarAsistenciaPorRFID(rfid, { fecha: new Date(fecha), mesa });
+                
+            }
+            else if(nombre){
+                registroExitoso = await registrarAsistenciaPorNombre(nombre, { fecha: new Date(fecha), mesa });
+            }
+            else {
+                console.error("Asistencia sin RFID ni nombre:", asistencia);
+                registrosFallidos++;
+                continue;
+            }
+            
+            if (registroExitoso) {
+                registrosExitosos++;
+            } else {
+                registrosFallidos++;
+                errores.push(asistencia);
+
+            }
+            
+        }
+        if (errores.length > 0) {
+            console.error("Errores al registrar asistencias locales:");
+            // Aquí podrías guardar los errores en un archivo o en la base de datos
+            // await registrarErroresEnElCargadoDeAsistencias(errores);
+            await registrarErroresEnElCargadoDeAsistencias(errores);
+
+        }
+
+        res.status(200).json({ message: `Registro de asistencias locales completado. Registros exitosos: ${registrosExitosos}, Registros fallidos: ${registrosFallidos}`, errores });
+    } catch (error) {
+        console.error("Error al registrar asistencias locales en la base de datos:", error);
+        res.status(500).json({ error: "Error al registrar asistencias locales en la base de datos" });
+    }
+})

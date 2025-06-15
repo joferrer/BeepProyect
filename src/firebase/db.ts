@@ -83,3 +83,27 @@ export const obtenerAsistentePorNombreOCedula = async ({nombre,cedula}:{nombre: 
         return null;
     }
 }
+
+export const registrarAsistencia = async (id: string, asistencia: { fecha: Date, mesa: string }) => {
+    try {
+        const docRef = collectionRef.doc(id);
+        const asistenteData = await docRef.get();
+
+        if (!asistenteData.exists) {
+            console.error('Asistente no encontrado');
+            return false;
+        }
+
+        const asistente = asistenteData.data() as AsistenteData;
+        const asistenciaActual = asistente.ASISTENCIA || [];
+
+        asistenciaActual.push(asistencia);
+        
+        await docRef.update({ ASISTENCIA: asistenciaActual });
+        console.log(`Asistencia registrada para el asistente con ID ${id}`);
+        return true;
+    } catch (error) {
+        console.error('Error al registrar asistencia:', error);
+        return false;
+    }
+}

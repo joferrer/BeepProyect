@@ -10,10 +10,11 @@ export interface PreregistroData {
 }
 
 export interface AsistenciaData {
-  fecha: string; // Formato YYYY-MM-DD
+  fecha: Date; // Formato YYYY-MM-DD
   mesa: string; // Identificador de la mesa
 }
 
 export interface AsistenteData extends Omit<PreregistroData, 'NUMERO'> {
   id?: string; // Opcional para el ID del documento en la base de datos
+  ASISTENCIA?: AsistenciaData[]; // Lista de asistencias
 }

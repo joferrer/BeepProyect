@@ -28,4 +28,13 @@ GET http://localhost:3000/api/asistentePorNombreOCedula/PAOLA%20ISABEL%20RUIZ%20
 
 
 ### Buscar asistente por cédula
-GET http://localhost:3000/api/asistentePorNombreOCedula/1232389124 HTTP/1.1
+GET http://localhost:3000/api/asistentePorNombreOCedula/1093795078 HTTP/1.1
+
+
+### Registrar asistencia
+PATCH http://localhost:3000/api/registrarAsistencia/9ziFqOhFPZnt9UltL4nG
+Content-Type: application/json
+
+{
+  "mesa": "Mesa 2"
+}

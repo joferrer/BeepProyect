@@ -38,9 +38,35 @@
                 <div id="feedback" class="text-lg font-medium h-8 flex items-center transition-all duration-300 min-h-[2rem]"></div>
             </div>
         </div>
+        <!-- Modal -->
+        <div id="modalBuscador" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+            <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-lg relative">
+                <button id="cerrarModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl">&times;</button>
+                <h2 class="text-2xl font-bold mb-4">Buscar Invitado</h2>
+                <!-- Buscador -->
+                <div class="relative">
+                    <label for="buscador" class="block text-gray-700 font-medium mb-1">
+                        Nombre o Documento
+                    </label>
+                    <input
+                        type="text"
+                        id="buscador"
+                        placeholder="Buscar invitado por nombre o documento..."
+                        class="w-full p-2 rounded-md bg-gray-100 text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black"
+                        autocomplete="off"
+                    >
+                    <ul id="sugerencias" class="absolute z-10 w-full bg-gray-300 border border-gray-300 rounded-xl mt-1 shadow hidden max-h-52 overflow-y-auto"></ul>
+                </div>
+                <!-- Botones del modal -->
+                <div class="mt-4 flex justify-end space-x-2">
+                    <button id="cancelarModal" class="px-4 py-2 text-gray-600 hover:text-black">Cancelar</button>
+                    <button id="aceptarModal" class="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800">Aceptar</button>
+                </div>
+                <!-- Feedback -->
+                <p id="feedbackModal" class="text-sm mt-2 h-5 text-gray-600"></p>
+            </div>
+        </div>
         <script src="registrationRFID.js"></script>
-        <script> document.getElementById("scan").addEventListener("click", function() {
-            console.log("Escanear botón presionado");
-        });</script>
+        <script src="findManually.js"></script>
     </body>
 </html>

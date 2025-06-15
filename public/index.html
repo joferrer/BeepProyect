@@ -45,6 +45,7 @@
                     // Cargar el script correspondiente
                     const script = document.createElement("script");
                     script.src = scriptPath;
+                    script.type = "module";
                     document.body.appendChild(script);
                 } catch (error) {
                     main.innerHTML = "<p class='text-red-500'>Error al cargar la página.</p>";

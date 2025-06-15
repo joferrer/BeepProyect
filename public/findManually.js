@@ -1,18 +1,6 @@
-const usuarios = [
-  {
-    NOMBRE_Y_APELLIDOS: "ERWIN DANIEL VILLAMIZAR",
-    CEDULA: 1004879410,
-    CORREO: "VILLAVESDANIEL1@OUTLOOK.COM",
-    AREA_O_DEPENDENCIA: "CONSULTA EXTERNA AUXILIAR DE ENFERMERIA",
-  },
-  {
-    NOMBRE_Y_APELLIDOS: "ANA MARÍA GÓMEZ",
-    CEDULA: 987654321,
-    AREA_O_DEPENDENCIA: "ADMINISTRACIÓN",
-  },
-];
+import { UsuarioService } from "./UsuarioService.js";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const scanBtn = document.getElementById("scan");
   const modal = document.getElementById("modalBuscador");
   const cerrarModal = document.getElementById("cerrarModal");
@@ -23,9 +11,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const sugerencias = document.getElementById("sugerencias");
   const feedbackModal = document.getElementById("feedbackModal");
 
-  let usuarioSeleccionado = null;
   let sugerenciasItems = [];
   let indiceSeleccionado = -1;
+
+  buscador.disabled = true;
+  try {
+    await UsuarioService.cargarUsuarios();
+    buscador.disabled = false;
+  } catch (err) {
+    console.error("Error cargando usuarios:", err);
+    alert("Error cargando los datos de usuarios.");
+    return;
+  }
 
   scanBtn.addEventListener("click", () => {
     modal.classList.remove("hidden");
@@ -33,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
     buscador.value = "";
     buscador.readOnly = false;
     buscador.focus();
-    usuarioSeleccionado = null;
+    UsuarioService.limpiarSeleccion();
     feedbackModal.textContent = "";
     sugerencias.innerHTML = "";
   });
@@ -43,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     documentoInput.disabled = false;
     documentoInput.focus();
     feedbackModal.textContent = mensaje;
-    usuarioSeleccionado = null;
+    UsuarioService.limpiarSeleccion();
     indiceSeleccionado = -1;
   }
 
@@ -55,18 +52,19 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   aceptarModal.addEventListener("click", () => {
-    if (!usuarioSeleccionado) {
+    const seleccionado = UsuarioService.obtenerSeleccionado();
+    if (!seleccionado) {
       feedbackModal.textContent = "⚠️ Selecciona un invitado";
       return;
     }
-    registrarManual(usuarioSeleccionado);
+    registrarManual(seleccionado);
     cerrarYResetearModal("✅ Registrado");
   });
 
   buscador.addEventListener("input", () => {
     const texto = buscador.value.toLowerCase().trim();
     sugerencias.innerHTML = "";
-    usuarioSeleccionado = null;
+    UsuarioService.limpiarSeleccion();
     sugerenciasItems = [];
     indiceSeleccionado = -1;
     feedbackModal.textContent = "";
@@ -76,11 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const filtrados = usuarios.filter(
-      (u) =>
-        u.NOMBRE_Y_APELLIDOS.toLowerCase().includes(texto) ||
-        String(u.CEDULA).includes(texto)
-    );
+    const filtrados = UsuarioService.buscarUsuarios(texto);
 
     if (filtrados.length === 0) {
       sugerencias.innerHTML =
@@ -104,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function seleccionarUsuario(usuario, liElement) {
     buscador.value = `${usuario.NOMBRE_Y_APELLIDOS} - ${usuario.CEDULA}`;
     buscador.readOnly = true;
-    usuarioSeleccionado = usuario;
+    UsuarioService.seleccionarUsuario(usuario);
     sugerencias.classList.add("hidden");
     feedbackModal.textContent = "";
     sugerenciasItems.forEach((item) =>
@@ -156,14 +150,10 @@ document.addEventListener("DOMContentLoaded", () => {
       sugerencias.classList.add("hidden");
     }
   });
+
   function registrarManual(usuario) {
     console.log("📝 Invitado seleccionado manualmente:", usuario);
-    // Aquí solo almacenamos temporalmente al usuario seleccionado
-    // Puedes usarlo luego para un POST, fetch, etc.
-    // Por ejemplo, guardarlo en localStorage si lo necesitas más adelante:
     localStorage.setItem("invitadoSeleccionadoManual", JSON.stringify(usuario));
-
-    // Mostrar feedback si quieres:
     feedbackModal.textContent = `✅ Invitado listo para registrar: ${usuario.NOMBRE_Y_APELLIDOS}`;
   }
 });

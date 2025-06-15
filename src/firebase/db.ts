@@ -62,3 +62,24 @@ export const asignarRFID = async (id: string, rfid: string) => {
         return false;
     }
 }
+
+export const obtenerAsistentePorNombreOCedula = async ({nombre,cedula}:{nombre: string, cedula: string|number}): Promise<AsistenteData | null> => {
+    try {
+        const snapshot = await collectionRef.where('NOMBRE_Y_APELLIDOS', '==', nombre).get()
+        
+        if(!snapshot.empty) return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as AsistenteData;
+        
+        const snapshotCedula = await collectionRef.where('CEDULA', '==', cedula).get();
+        
+        if (!snapshotCedula.empty) {
+            return { id: snapshotCedula.docs[0].id, ...snapshotCedula.docs[0].data() } as AsistenteData;
+        }
+
+        console.log('No se encontró ningún asistente con ese nombre');
+        return null;
+        
+    } catch (error) {
+        console.error('Error al buscar asistente:', error);
+        return null;
+    }
+}

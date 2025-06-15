@@ -1,4 +1,4 @@
-import { asignarRFID, obtenerAsistentes, registrarAsistente } from "../../firebase/db";
+import { asignarRFID, obtenerAsistentePorNombreOCedula, obtenerAsistentes, registrarAsistente } from "../../firebase/db";
 import { Router } from "express";
 
 export const asistentesRouter = Router();
@@ -56,3 +56,29 @@ asistentesRouter.patch("/asignacionRfid/:id", async (req, res) => {
     }
 })
 
+asistentesRouter.get("/asistentePorNombreOCedula/:dato", async (req, res) => {
+    const { dato } = req.params;
+    
+    if (!dato) {
+         res.status(400).json({ error: "Dato es requerido" });
+         return;
+    }
+
+    try {
+
+        let cedulaQuery: string | number = dato;
+if (!isNaN(Number(dato))) {
+  cedulaQuery = Number(dato);
+}
+        const asistente = await obtenerAsistentePorNombreOCedula({ nombre: dato, cedula: cedulaQuery });
+        
+        if (asistente) {
+            res.status(200).json(asistente);
+        } else {
+            res.status(404).json({ error: `Asistente ${dato} no encontrado` });
+        }
+    } catch (error) {
+        console.error("Error al buscar asistente:", error);
+        res.status(500).json({ error: "Error al buscar asistente" });
+    }
+})

@@ -21,3 +21,11 @@ content-type: application/json
 {
     "rfid": "A1B2C3D4E5"
 }
+
+### Buscar asistente por nombre
+GET http://localhost:3000/api/asistentePorNombreOCedula/PAOLA%20ISABEL%20RUIZ%20TORRES HTTP/1.1
+
+
+
+### Buscar asistente por cédula
+GET http://localhost:3000/api/asistentePorNombreOCedula/1232389124 HTTP/1.1

@@ -9,6 +9,11 @@ export interface PreregistroData {
   RFID?: string;
 }
 
+export interface AsistenciaData {
+  fecha: string; // Formato YYYY-MM-DD
+  mesa: string; // Identificador de la mesa
+}
+
 export interface AsistenteData extends Omit<PreregistroData, 'NUMERO'> {
   id?: string; // Opcional para el ID del documento en la base de datos
 }

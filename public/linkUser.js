@@ -3,7 +3,7 @@ const usuarios = [
     NOMBRE_Y_APELLIDOS: "ERWIN DANIEL VILLAMIZAR",
     CEDULA: 1004879410,
     CORREO: "VILLAVESDANIEL1@OUTLOOK.COM",
-    AREA_O_DEPENDENCIA: "CONSULTA EXTERNA AUXILIAR DE NEFERMERIA",
+    AREA_O_DEPENDENCIA: "CONSULTA EXTERNA AUXILIAR DE ENFERMERIA",
   },
   {
     NOMBRE_Y_APELLIDOS: "ANA MARÍA GÓMEZ",
@@ -25,14 +25,32 @@ const correoInfo = document.getElementById("correoInfo");
 
 let usuarioSeleccionado = null;
 let procesando = false;
+let sugerenciasItems = [];
+let indiceSeleccionado = -1;
 
-// Buscador
+// Buscador con flechas
 buscador.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    const primerItem = sugerencias.querySelector("li");
-    if (primerItem && !sugerencias.classList.contains("hidden")) {
-      primerItem.click();
-      e.preventDefault();
+  if (sugerencias.classList.contains("hidden")) return;
+
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    if (indiceSeleccionado < sugerenciasItems.length - 1) {
+      indiceSeleccionado++;
+      actualizarSeleccionVisual();
+    }
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    if (indiceSeleccionado > 0) {
+      indiceSeleccionado--;
+      actualizarSeleccionVisual();
+    }
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    if (indiceSeleccionado >= 0) {
+      sugerenciasItems[indiceSeleccionado].click();
+    } else {
+      const primerItem = sugerencias.querySelector("li");
+      if (primerItem) primerItem.click();
     }
   }
 });
@@ -40,6 +58,9 @@ buscador.addEventListener("keydown", (e) => {
 buscador.addEventListener("input", () => {
   const texto = buscador.value.toLowerCase().trim();
   sugerencias.innerHTML = "";
+  sugerenciasItems = [];
+  indiceSeleccionado = -1;
+
   if (texto === "") {
     sugerencias.classList.add("hidden");
     return;
@@ -60,8 +81,8 @@ buscador.addEventListener("input", () => {
       li.className = "px-4 py-2 hover:bg-gray-100 cursor-pointer";
       li.textContent = `${u.NOMBRE_Y_APELLIDOS} - ${u.CEDULA}`;
       li.addEventListener("click", () => {
-        buscador.value = u.NOMBRE_Y_APELLIDOS;
-        buscador.readOnly = true; // 👈 Bloquear el buscador
+        buscador.value = `${u.NOMBRE_Y_APELLIDOS} - ${u.CEDULA}`; // <- aquí el cambio
+        buscador.readOnly = true;
         sugerencias.classList.add("hidden");
 
         nombreInfo.textContent = u.NOMBRE_Y_APELLIDOS;
@@ -79,24 +100,31 @@ buscador.addEventListener("input", () => {
 
         cambiarBtn.classList.remove("hidden");
       });
+
       sugerencias.appendChild(li);
+      sugerenciasItems.push(li);
     });
   }
 
   sugerencias.classList.remove("hidden");
 });
 
-document.addEventListener("click", (e) => {
-  if (!sugerencias.contains(e.target) && e.target !== buscador) {
-    sugerencias.classList.add("hidden");
-  }
-});
+function actualizarSeleccionVisual() {
+  sugerenciasItems.forEach((item, index) => {
+    if (index === indiceSeleccionado) {
+      item.classList.add("bg-gray-200");
+    } else {
+      item.classList.remove("bg-gray-200");
+    }
+  });
+}
+
 
 cambiarBtn.addEventListener("click", () => {
   usuarioSeleccionado = null;
 
   buscador.value = "";
-  buscador.readOnly = false; // 👈 Habilitar el buscador
+  buscador.readOnly = false;
   inputRFID.value = "";
   inputRFID.disabled = true;
   inputRFID.placeholder = "Esperando selección...";
@@ -172,7 +200,7 @@ function procesarRFID(valor) {
     inputRFID.classList.add("text-gray-500");
 
     buscador.value = "";
-    buscador.readOnly = false; // 👈 Habilitar el buscador nuevamente
+    buscador.readOnly = false;
 
     usuarioSeleccionado = null;
     nombreInfo.textContent = "-";
@@ -193,7 +221,6 @@ function procesarRFID(valor) {
   }, 1500);
 }
 
-// Enfoque automático en RFID si está activo
 setInterval(() => {
   if (!document.activeElement || document.activeElement !== inputRFID) {
     if (!inputRFID.disabled) {

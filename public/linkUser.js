@@ -1,16 +1,4 @@
-const usuarios = [
-  {
-    NOMBRE_Y_APELLIDOS: "ERWIN DANIEL VILLAMIZAR",
-    CEDULA: 1004879410,
-    CORREO: "VILLAVESDANIEL1@OUTLOOK.COM",
-    AREA_O_DEPENDENCIA: "CONSULTA EXTERNA AUXILIAR DE ENFERMERIA",
-  },
-  {
-    NOMBRE_Y_APELLIDOS: "ANA MARÍA GÓMEZ",
-    CEDULA: 987654321,
-    AREA_O_DEPENDENCIA: "ADMINISTRACIÓN",
-  },
-];
+import { UsuarioService } from "./UsuarioService.js";
 
 const buscador = document.getElementById("buscador");
 const sugerencias = document.getElementById("sugerencias");
@@ -23,10 +11,19 @@ const documentoInfo = document.getElementById("documentoInfo");
 const areaInfo = document.getElementById("areaInfo");
 const correoInfo = document.getElementById("correoInfo");
 
-let usuarioSeleccionado = null;
 let procesando = false;
 let sugerenciasItems = [];
 let indiceSeleccionado = -1;
+
+buscador.disabled = true;
+UsuarioService.cargarUsuarios()
+  .then(() => {
+    buscador.disabled = false;
+  })
+  .catch((err) => {
+    console.error("Error cargando usuarios:", err);
+    alert("Error cargando los datos de usuarios.");
+  });
 
 // Buscador con flechas
 buscador.addEventListener("keydown", (e) => {
@@ -66,11 +63,7 @@ buscador.addEventListener("input", () => {
     return;
   }
 
-  const filtrados = usuarios.filter(
-    (u) =>
-      u.NOMBRE_Y_APELLIDOS.toLowerCase().includes(texto) ||
-      String(u.CEDULA).includes(texto)
-  );
+  const filtrados = UsuarioService.buscarUsuarios(texto);
 
   if (filtrados.length === 0) {
     sugerencias.innerHTML =
@@ -81,7 +74,7 @@ buscador.addEventListener("input", () => {
       li.className = "px-4 py-2 hover:bg-gray-100 cursor-pointer";
       li.textContent = `${u.NOMBRE_Y_APELLIDOS} - ${u.CEDULA}`;
       li.addEventListener("click", () => {
-        buscador.value = `${u.NOMBRE_Y_APELLIDOS} - ${u.CEDULA}`; // <- aquí el cambio
+        buscador.value = `${u.NOMBRE_Y_APELLIDOS} - ${u.CEDULA}`;
         buscador.readOnly = true;
         sugerencias.classList.add("hidden");
 
@@ -90,10 +83,10 @@ buscador.addEventListener("input", () => {
         areaInfo.textContent = u.AREA_O_DEPENDENCIA || "-";
         correoInfo.textContent = u.CORREO?.trim() || "-";
 
-        usuarioSeleccionado = u;
+        UsuarioService.seleccionarUsuario(u);
 
         inputRFID.disabled = false;
-        inputRFID.placeholder = "Escaneé la escarapela...";
+        inputRFID.placeholder = "Escanee la escarapela...";
         inputRFID.classList.remove("text-gray-500");
         inputRFID.classList.add("text-gray-800");
         inputRFID.focus();
@@ -111,17 +104,12 @@ buscador.addEventListener("input", () => {
 
 function actualizarSeleccionVisual() {
   sugerenciasItems.forEach((item, index) => {
-    if (index === indiceSeleccionado) {
-      item.classList.add("bg-gray-200");
-    } else {
-      item.classList.remove("bg-gray-200");
-    }
+    item.classList.toggle("bg-gray-200", index === indiceSeleccionado);
   });
 }
 
-
 cambiarBtn.addEventListener("click", () => {
-  usuarioSeleccionado = null;
+  UsuarioService.limpiarSeleccion();
 
   buscador.value = "";
   buscador.readOnly = false;
@@ -151,7 +139,6 @@ inputRFID.addEventListener("keydown", (e) => {
   const diff = now - lastRFIDTime;
 
   if (diff > 50) rfidBuffer = "";
-
   lastRFIDTime = now;
 
   if (e.key.match(/[0-9]/)) {
@@ -170,7 +157,9 @@ inputRFID.addEventListener("keydown", (e) => {
 function procesarRFID(valor) {
   if (procesando || !valor) return;
 
-  if (!usuarioSeleccionado) {
+  const usuario = UsuarioService.obtenerSeleccionado();
+
+  if (!usuario) {
     feedback.textContent = "⚠️ Selecciona primero un usuario.";
     feedback.className =
       "text-yellow-600 font-medium h-8 flex items-center transition-all duration-300 min-h-[2rem]";
@@ -186,10 +175,10 @@ function procesarRFID(valor) {
   setTimeout(() => {
     console.log("Enlazado:", {
       rfid: valor,
-      ...usuarioSeleccionado,
+      ...usuario,
     });
 
-    feedback.textContent = `✅ RFID ${valor} enlazado con ${usuarioSeleccionado.NOMBRE_Y_APELLIDOS}`;
+    feedback.textContent = `✅ RFID ${valor} enlazado con ${usuario.NOMBRE_Y_APELLIDOS}`;
     feedback.className =
       "text-green-600 font-semibold h-8 flex items-center transition-all duration-300 min-h-[2rem]";
 
@@ -202,7 +191,8 @@ function procesarRFID(valor) {
     buscador.value = "";
     buscador.readOnly = false;
 
-    usuarioSeleccionado = null;
+    UsuarioService.limpiarSeleccion();
+
     nombreInfo.textContent = "-";
     documentoInfo.textContent = "-";
     areaInfo.textContent = "-";

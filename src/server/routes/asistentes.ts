@@ -1,5 +1,6 @@
 import { asignarRFID, obtenerAsistentePorNombreOCedula, obtenerAsistentes, registrarAsistencia, registrarAsistente } from "../../firebase/db";
 import { Router } from "express";
+import { guardarAsistenciaLocal } from "./files";
 
 export const asistentesRouter = Router();
 
@@ -105,3 +106,25 @@ asistentesRouter.patch("/registrarAsistencia/:id", async (req, res) => {
         res.status(500).json({ error: "Error al registrar asistencia" });
     }
 })
+
+asistentesRouter.post("/registrarAsistenciaLocal", async (req, res) => {
+    const { rfid,mesa } = req.body;
+
+    if (!rfid) {
+        res.status(400).json({ error: "RFID es requerido" });
+        return;
+    }
+
+    try {
+        const resultado = await guardarAsistenciaLocal(rfid,mesa); // Reemplazar con la llamada real
+
+        if (resultado) {
+            res.status(200).json({ message: "Asistencia guardada localmente" });
+        } else {
+            res.status(500).json({ error: "Error al guardar asistencia localmente" });
+        }
+    } catch (error) {
+        console.error("Error al guardar asistencia local:", error);
+        res.status(500).json({ error: "Error al guardar asistencia local" });
+    }
+}) 

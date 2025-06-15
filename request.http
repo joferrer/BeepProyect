@@ -38,3 +38,13 @@ Content-Type: application/json
 {
   "mesa": "Mesa 2"
 }
+
+
+### Registrar asistencia localmente
+POST http://localhost:3000/api/registrarAsistenciaLocal
+Content-Type: application/json
+
+{
+  "rfid": "A1B2C3D4E5",
+  "mesa": "Mesa 1"
+}

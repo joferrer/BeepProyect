@@ -16,7 +16,7 @@ asistentesRouter.get("/asistentes", async (_req, res) => {
 asistentesRouter.post("/asistente", async (req, res) => {
     const persona = req.body;
     
-    if (!persona || !persona.NOMBRE || !persona.APELLIDO) {
+    if (!persona ) {
          res.status(400).json({ error: "Datos incompletos" });
          return;
     }

@@ -1,0 +1,23 @@
+
+## Obtener asistentes
+GET http://localhost:3000/api/asistentes HTTP/1.1
+content-type: application/json
+
+### Registrar asistente
+POST http://localhost:3000/api/asistente HTTP/1.1
+content-type: application/json
+
+{
+    "NOMBRE_Y_APELLIDOS": "Jeison Ferrer",
+    "CEDULA": "1093795078",
+    "CORREO": "jeison@example.com",
+    "AREA_O_DEPENDENCIA": "Sistemas"
+}
+
+### Asignar RFID
+PATCH http://localhost:3000/api/asignacionRfid/cgUadM5Y7huwyxz8uN10 HTTP/1.1
+content-type: application/json
+
+{
+    "rfid": "A1B2C3D4E5"
+}

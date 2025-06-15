@@ -1,4 +1,4 @@
-import { PreregistroData } from "../interfaces";
+import { AsistenteData, PreregistroData } from "../interfaces";
 import { database as db } from "./config"
 
 const collectionRef = db.collection('asistentes');
@@ -34,5 +34,19 @@ export const registrarAsistente = async (persona: PreregistroData) => {
     } catch (error) {
         console.error('Error al registrar asistente:', error);
         return false; // Retorna false en caso de error
+    }
+}
+
+export const obtenerAsistentes = async () => {
+    try {
+        const snapshot = await collectionRef.get();
+        const asistentes: AsistenteData[] = [];
+        snapshot.forEach(doc => {
+            asistentes.push({ id: doc.id, ...doc.data() } as AsistenteData);
+        });
+        return asistentes;
+    } catch (error) {
+        console.error('Error al obtener asistentes:', error);
+        return [];
     }
 }

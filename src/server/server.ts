@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { config } from 'dotenv';
+import { asistentesRouter } from './routes/asistentes';
 
 //import { router as pinRouter  } from '../servicios/pin/pinroutes'; // Asegúrate de que la ruta sea correcta
 
@@ -28,7 +29,7 @@ class Server {
     }
     
     routes() {
-        //this.app.use('/api', pinRouter);
+        this.app.use('/api', asistentesRouter);
     }
     start() {
         this.middlewares();

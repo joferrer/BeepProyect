@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Enlazar Invitado</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="index.css">
+        <style>
+    .font-pacifico {
+      font-family: 'Pacifico', cursive;
+    }
+        </style>
+    </head>
+    <body class="min-h-screen bg-white flex items-center justify-center font-sans">
+        <div class="w-full max-w-4xl p-6 bg-white">
+            <h1 class="titulo text-5xl font-bold mb-10 text-gray-800">
+                Enlazar Invitado
+                <span>🤓</span>
+            </h1>
+            <div class="flex gap-8 relative">
+                <!-- Panel Izquierdo -->
+                <div class="flex-1 space-y-6">
+                    <!-- Buscador -->
+                    <div class="relative">
+                        <label for="buscador" class="block font-medium text-gray-700 mb-1">Nombre o Documento</label>
+                        <input
+                            type="text"
+                            id="buscador"
+                            placeholder="Buscar invitado por nombre o documento..."
+                            class="w-full p-2 rounded-md bg-gray-100 text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black"
+                            autocomplete="off"
+                        >
+                        <ul id="sugerencias" class="absolute z-10 w-full bg-gray-300 border border-gray-300 rounded-xl mt-1 shadow hidden max-h-52 overflow-y-auto"></ul>
+                    </div>
+                    <!-- Input RFID y botón Cambiar -->
+                    <div class="space-y-2">
+                        <div>
+                            <label for="rfid" class="block font-medium text-gray-700 mb-1">
+                                Acerque su escarapela al lector
+                            </label>
+                            <input
+                                type="text"
+                                id="rfid"
+                                placeholder="Esperando selección..."
+                                class="w-full p-2 rounded-md bg-gray-100 text-gray-500 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                disabled
+                            >
+                        </div>
+                        <button id="cambiarBtn" class="hidden flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 border border-red-300 rounded-full shadow-sm hover:bg-red-100 hover:shadow-md transition duration-200 text-sm font-medium">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v6h6M20 20v-6h-6M4 20l6-6M20 4l-6 6"/>
+                            </svg>
+                            Cambiar invitado
+                        </button>
+                        <!-- Feedback -->
+                        <div id="feedback" class="text-lg font-medium h-8 flex items-center transition-all duration-300 min-h-[2rem]"></div>
+                    </div>
+                </div>
+                <!-- Panel de información -->
+                <div class="w-[350px] bg-gray-100 rounded-2xl p-6 space-y-1 text-gray-800 bg-gray-300">
+                    <div>
+                        <strong id="f" class="block text-sm text-gray-600">Nombre:</strong>
+                        <span id="nombreInfo" class="text-1xl font-ligth">-</span>
+                    </div>
+                    <div>
+                        <strong class="block text-sm text-gray-600">Documento:</strong>
+                        <span id="documentoInfo" class="text-1xl font-ligth">-</span>
+                    </div>
+                    <div>
+                        <strong class="block text-sm text-gray-600">Área:</strong>
+                        <span id="areaInfo" class="text-1xl font-ligth">-</span>
+                    </div>
+                    <div>
+                        <strong class="block text-sm text-gray-600">Correo:</strong>
+                        <span id="correoInfo" class="text-1xl font-ligth">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

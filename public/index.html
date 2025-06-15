@@ -1,1 +1,56 @@
-<h1>BEEP</h1>
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>BEEP - Registro</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="index.css">
+    </head>
+    <body class="bg-white min-h-screen flex flex-col text-gray-800">
+        <!-- Navbar -->
+        <nav class="bg-white shadow-md border-b border-gray-300 p-4 flex justify-between items-center">
+            <span class="titulo text-2xl text-black">BEEP</span>
+            <div class="flex gap-4 text-md">
+                <a
+                    href="#"
+                    data-page="linkUser.html"
+                    data-script="linkUser.js"
+                    class="nav-link px-3 py-1 rounded hover:bg-gray-300 hover:text-black transition"
+                >Enlazar</a>
+                <a href="#" data-page="registrationForm.html" class="nav-link px-3 py-1 rounded hover:bg-gray-300 hover:text-black transition">Nuevo Visitante</a>
+            </div>
+        </nav>
+        <main id="main-content" class="flex-1 p-8 flex justify-center items-center"></main>
+        <script>
+        const links = document.querySelectorAll(".nav-link");
+        const main = document.getElementById("main-content");
+
+        links.forEach(link => {
+            link.addEventListener("click", async e => {
+                e.preventDefault();
+                const page = link.getAttribute("data-page");
+                const scriptPath = link.getAttribute("data-script");
+
+                links.forEach(l => l.classList.remove("bg-gray-100", "text-gray-800", "font-semibold"));
+
+                link.classList.add("bg-gray-100", "text-gray-800", "font-semibold");
+
+                try {
+                    const res = await fetch(page);
+                    const html = await res.text();
+                    main.innerHTML = html;
+
+                    // Cargar el script correspondiente
+                    const script = document.createElement("script");
+                    script.src = scriptPath;
+                    document.body.appendChild(script);
+                } catch (error) {
+                    main.innerHTML = "<p class='text-red-500'>Error al cargar la página.</p>";
+                }
+            });
+        });
+        </script>
+    </body>
+</html>

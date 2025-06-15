@@ -5,65 +5,46 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registro de Usuario</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="min-h-screen flex items-center justify-center bg-gray-100">
   <div class="w-full max-w-2xl mx-auto p-8">
-    <h1 class="text-5xl font-bold mb-6">Nuevo invitado 🤔</h1>
+    <h1 class="text-5xl font-bold mb-6 font-[Pacifico]">Nuevo invitado 🤔</h1>
     <form class="space-y-4">
-      <!-- Nombres y Apellidos en una fila -->
-      <div class="flex gap-4">
-        <!-- Nombres -->
-        <div class="w-1/2">
-          <label class="block text-sm font-medium text-gray-700">Nombre</label>
-          <input type="text" name="firstName" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-            required />
-        </div>
 
-        <!-- Apellidos -->
-        <div class="w-1/2">
-          <label class="block text-sm font-medium text-gray-700">Apellido</label>
-          <input type="text" name="lastName" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
-        </div>
+      <!-- Nombre completo -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Nombre y Apellidos</label>
+        <input type="text" name="nombreCompleto" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+          required />
       </div>
-
 
       <!-- Documento de identidad -->
       <div>
         <label class="block text-sm font-medium text-gray-700">Documento de identidad</label>
-        <input type="text" name="documento" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
+        <input type="text" name="cedula" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
       </div>
 
-      <!-- Email -->
+      <!-- Email (opcional) -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">Email</label>
-        <input type="email" name="email" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
+        <label class="block text-sm font-medium text-gray-700">Correo electrónico (opcional)</label>
+        <input type="email" name="correo" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" />
       </div>
 
-      <!-- Entidad -->
+      <!-- Área o dependencia -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">Entidad</label>
-        <input list="entidades" name="entidad" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-          placeholder="Escribe para buscar..." />
-        <datalist id="entidades">
-          <option value="Entidad de Salud A"></option>
-          <option value="Entidad de Salud B"></option>
-          <option value="Colegio Nacional"></option>
-          <option value="Universidad de Bogotá"></option>
-          <option value="Empresa XYZ"></option>
-          <option value="Alcaldía Local"></option>
-          <!-- Agrega más aquí o reemplaza dinámicamente -->
-        </datalist>
+        <label class="block text-sm font-medium text-gray-700">Área o dependencia</label>
+        <input type="text" name="area" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
       </div>
-
+      
       <!-- Botón de envío -->
       <div class="pt-4">
         <button type="submit"
           class="w-full bg-black hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg shadow">
           Registrar
         </button>
-
       </div>
     </form>
   </div>

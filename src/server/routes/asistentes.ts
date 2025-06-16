@@ -110,15 +110,15 @@ asistentesRouter.patch("/registrarAsistencia/:id", async (req, res) => {
 })
 
 asistentesRouter.post("/registrarAsistenciaLocal", async (req, res) => {
-    const { rfid,mesa } = req.body;
+    const { rfid,mesa,nombre } = req.body;
 
-    if (!rfid) {
-        res.status(400).json({ error: "RFID es requerido" });
+    if (!rfid && !nombre) {
+        res.status(400).json({ error: "RFID o el nombre es requerido" });
         return;
     }
 
     try {
-        const resultado = await guardarAsistenciaLocal(rfid,mesa); // Reemplazar con la llamada real
+        const resultado = await guardarAsistenciaLocal(rfid,mesa,nombre); // Reemplazar con la llamada real
 
         if (resultado) {
             res.status(200).json({ message: "Asistencia guardada localmente" });

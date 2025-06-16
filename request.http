@@ -45,8 +45,8 @@ POST http://localhost:3000/api/registrarAsistenciaLocal
 Content-Type: application/json
 
 {
-  "rfid": "A1B2C3D4E5",
-  "mesa": "Mesa 1"
+  "nombre": "Jeison Ferrer",
+  "mesa": "Mesa 3"
 }
 
 

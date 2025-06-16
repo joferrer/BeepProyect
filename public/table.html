@@ -8,7 +8,18 @@
         <link href="fuente.css" rel="stylesheet">
         <link rel="stylesheet" href="index.css">
     </head>
-    <body class="bg-gray-100 font-sans relative min-h-screen flex">
+    <body class="bg-white min-h-screen flex flex-col text-gray-800">
+        <!-- Navbar -->
+        <nav class="relative bg-white shadow-md border-b border-gray-300 p-4">
+            <div class="max-w-[1024px] w-full mx-auto flex justify-between items-center relative">
+                <span class="titulo text-2xl mt-4 text-black">BEEP</span>
+                <!-- Imagen centrada en todo el nav -->
+                <div class="absolute left-1/2 transform -translate-x-1/2">
+                    <img src="./images/imsalud.png" alt="Logo" class="h-11 object-contain">
+                </div>
+                
+            </div>
+        </nav>
         <div id="sidebar-container" class="absolute z-10"></div>
         <main class="flex-1 flex items-center justify-center pl-8">
             <div class="bg-white p-8 rounded-xl w-full max-w-md text-center shadow-lg">
@@ -27,5 +38,10 @@
             </div>
         </main>
     </body>
+    <footer class="bg-white border-t border-gray-300 p-4">
+        <div class="max-w-[1024px] flex w-full mx-auto flex justify-center items-center">
+            <img src="./images/Recurso1.png" alt="Footer Logo" class="w-[200px] object-contain">
+        </div>
+    </footer>
     <script src="table.js"></script>
 </html>

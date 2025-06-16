@@ -6,6 +6,8 @@
         <title>BEEP - Registro</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+        <!-- SweetAlert2 - Cargado globalmente -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link rel="stylesheet" href="index.css">
     </head>
     <body class="bg-white min-h-screen flex flex-col text-gray-800">
@@ -14,43 +16,186 @@
             <span class="titulo text-2xl text-black">BEEP</span>
             <div class="flex gap-4 text-md">
                 <a
-                    href="#"
+                    href="#enlazar"
                     data-page="linkUser.html"
                     data-script="linkUser.js"
+                    data-section="enlazar"
                     class="nav-link px-3 py-1 rounded hover:bg-gray-300 hover:text-black transition"
                 >Enlazar</a>
-                <a href="#" data-page="registrationForm.html" class="nav-link px-3 py-1 rounded hover:bg-gray-300 hover:text-black transition">Nuevo Visitante</a>
+                <a
+                    href="#nuevo-visitante"
+                    data-page="registrationForm.html"
+                    data-section="nuevo-visitante"
+                    class="nav-link px-3 py-1 rounded hover:bg-gray-300 hover:text-black transition"
+                >Nuevo Visitante</a>
             </div>
         </nav>
-        <main id="main-content" class="flex-1 p-8 flex justify-center items-center"></main>
+        <main id="main-content" class="flex-1 p-8 flex justify-center items-center">
+            <div class="text-center text-gray-500">
+                <h2 class="text-xl mb-4">Bienvenido a BEEP</h2>
+                <p>Selecciona una opción del menú superior</p>
+            </div>
+        </main>
         <script>
+
+
+        // ===== NAVEGACIÓN SPA =====
         const links = document.querySelectorAll(".nav-link");
         const main = document.getElementById("main-content");
+        let currentScript = null;
+        let isLoading = false;
 
-        links.forEach(link => {
-            link.addEventListener("click", async e => {
-                e.preventDefault();
-                const page = link.getAttribute("data-page");
-                const scriptPath = link.getAttribute("data-script");
+        // Configuración de rutas
+        const routes = {
+            'enlazar': {
+                page: 'linkUser.html',
+                script: 'linkUser.js',
+                title: 'BEEP - Enlazar RFID'
+            },
+            'nuevo-visitante': {
+                page: 'registrationForm.html',
+                script: 'registrationForm.js',
+                title: 'BEEP - Nuevo Visitante'
+            }
+        };
 
-                links.forEach(l => l.classList.remove("bg-gray-100", "text-gray-800", "font-semibold"));
-
-                link.classList.add("bg-gray-100", "text-gray-800", "font-semibold");
-
+        // Función para limpiar scripts previos
+        function limpiarScriptsPrevios() {
+            if (currentScript) {
                 try {
-                    const res = await fetch(page);
-                    const html = await res.text();
-                    main.innerHTML = html;
+                    document.body.removeChild(currentScript);
+                } catch (e) {
+                    // El script ya fue removido o no existe
+                }
+                currentScript = null;
+            }
+        }
 
-                    // Cargar el script correspondiente
-                    const script = document.createElement("script");
-                    script.src = scriptPath;
-                    script.type = "module";
-                    document.body.appendChild(script);
-                } catch (error) {
-                    main.innerHTML = "<p class='text-red-500'>Error al cargar la página.</p>";
+        // Función para actualizar la selección visual del nav
+        function actualizarNavegacion(seccionActiva) {
+            links.forEach(link => {
+                const section = link.getAttribute('data-section');
+                if (section === seccionActiva) {
+                    link.classList.add("bg-gray-100", "text-gray-800", "font-semibold");
+                } else {
+                    link.classList.remove("bg-gray-100", "text-gray-800", "font-semibold");
                 }
             });
+        }
+
+        // Función para cargar una sección
+        async function cargarSeccion(seccion) {
+            if (isLoading) return;
+
+            const route = routes[seccion];
+            if (!route) {
+                console.error(`Ruta no encontrada: ${seccion}`);
+                return;
+            }
+
+            isLoading = true;
+            actualizarNavegacion(seccion);
+
+            try {
+                // Mostrar loading
+                main.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                        <span class="ml-2">Cargando ${seccion}...</span>
+                    </div>
+                `;
+
+                // Cargar HTML
+                const res = await fetch(route.page);
+                if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+
+                const html = await res.text();
+                main.innerHTML = html;
+
+                // Actualizar título de la página
+                document.title = route.title;
+
+                // Limpiar script anterior
+                limpiarScriptsPrevios();
+
+                // Cargar el nuevo script si existe
+                if (route.script) {
+                    // Esperar un poco para que el DOM se actualice
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    const script = document.createElement("script");
+                    script.src = route.script + '?v=' + Date.now();
+                    script.type = "module";
+
+                    script.onerror = () => {
+                        console.error(`Error al cargar el script: ${route.script}`);
+                        main.innerHTML = `<p class='text-red-500'>Error al cargar el script de ${seccion}.</p>`;
+                    };
+
+                    script.onload = () => {
+                        console.log(`✅ Script "${route.script}" cargado correctamente`);
+                    };
+
+                    document.body.appendChild(script);
+                    currentScript = script;
+                }
+
+                console.log(`✅ Sección "${seccion}" cargada correctamente`);
+
+            } catch (error) {
+                console.error(`Error cargando sección "${seccion}":`, error);
+                main.innerHTML = `<p class='text-red-500'>Error al cargar ${seccion}. ${error.message}</p>`;
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // Función para manejar cambios en el hash
+        function manejarCambioHash() {
+            const hash = window.location.hash.slice(1); // Quitar el #
+
+            if (hash && routes[hash]) {
+                cargarSeccion(hash);
+            } else {
+                // Si no hay hash válido, mostrar página de inicio
+                actualizarNavegacion(null);
+                main.innerHTML = `
+                    <div class="text-center text-gray-500">
+                        <h2 class="text-xl mb-4">Bienvenido a BEEP</h2>
+                        <p>Selecciona una opción del menú superior</p>
+                    </div>
+                `;
+                document.title = 'BEEP - Registro';
+            }
+        }
+
+        // Event listeners para los links
+        links.forEach(link => {
+            link.addEventListener("click", e => {
+                e.preventDefault();
+                const seccion = link.getAttribute('data-section');
+
+                // Cambiar el hash (esto disparará el evento hashchange)
+                window.location.hash = seccion;
+            });
+        });
+
+        // Escuchar cambios en el hash (back/forward del navegador)
+        window.addEventListener('hashchange', manejarCambioHash);
+
+        // Cargar la sección inicial cuando la página se carga
+        window.addEventListener('DOMContentLoaded', () => {
+            manejarCambioHash();
+        });
+
+        // Función para ir a una sección programáticamente
+        window.irASeccion = function (seccion) {
+            window.location.hash = seccion;
+        };
+
+        // Limpiar al cerrar/recargar la página
+        window.addEventListener('beforeunload', () => {
+            limpiarScriptsPrevios();
         });
         </script>
     </body>

@@ -1,7 +1,7 @@
 node_modules/
 .env
 files/
-store/
+public/store/
 TODO.md
 build/
 .env2

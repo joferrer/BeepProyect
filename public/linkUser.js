@@ -26,7 +26,14 @@ UsuarioService.cargarUsuarios()
   })
   .catch((err) => {
     console.error("Error cargando usuarios:", err);
-    alert("Error cargando los datos de usuarios.");
+    console.log("cargados:", UsuarioService.estadisticasCache());
+    Swal.fire({
+      icon: "error",
+      title: "Error al cargar usuarios",
+      text: "No se pudo cargar la lista de asistentes.",
+      footer: "<small>Contacta con Soporte Técnico.</small>",
+      confirmButtonColor: "#d33",
+    });
   })
   .finally(() => {
     loader.style.display = "none";
@@ -191,7 +198,7 @@ inputRFID.addEventListener("keydown", (e) => {
   }
 });
 
-function procesarRFID(valor) {
+async function procesarRFID(valor) {
   if (procesando || !valor) return;
 
   const usuario = UsuarioService.obtenerSeleccionado();
@@ -203,26 +210,33 @@ function procesarRFID(valor) {
 
   procesando = true;
   inputRFID.disabled = true;
-  mostrarFeedback("Procesando...", "text-blue-600");
+  mostrarFeedback("⏳ Enlazando RFID...", "text-blue-600");
 
-  setTimeout(() => {
-    console.log("Enlazado:", { rfid: valor, ...usuario });
+  try {
+    const resultado = await UsuarioService.enlazarRFID(usuario, valor);
 
     mostrarFeedback(
       `✅ RFID ${valor} enlazado con ${usuario.NOMBRE_Y_APELLIDOS}`,
       "text-green-600"
     );
 
-    limpiarFormulario();
-
+    // Limpiar luego de un corto tiempo
     setTimeout(() => {
+      limpiarFormulario();
       feedback.textContent = "";
       feedback.className =
         "text-lg font-medium h-8 flex items-center transition-all duration-300 min-h-[2rem]";
     }, 1300);
-
+  } catch (error) {
+    mostrarFeedback(
+      `❌ Error al enlazar RFID: ${error.message}`,
+      "text-red-600"
+    );
+    inputRFID.disabled = false;
+    inputRFID.focus();
+  } finally {
     procesando = false;
-  }, 1500);
+  }
 }
 
 function mostrarFeedback(texto, clase) {

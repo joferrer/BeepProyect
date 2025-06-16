@@ -25,11 +25,12 @@ asistentesRouter.post("/asistente", async (req, res) => {
 
     try {
         const registrado = await registrarAsistente(persona);
-        if (registrado) {
-            res.status(201).json({ message: "Asistente registrado exitosamente" });
-        } else {
+        if (!registrado) {
             res.status(500).json({ error: "Error al registrar asistente" });
+            return;
         }
+        res.status(201).json({ message: "Asistente registrado exitosamente", id: registrado.id });
+        
     } catch (error) {
         console.error("Error al registrar asistente:", error);
         res.status(500).json({ error: "Error al registrar asistente" });

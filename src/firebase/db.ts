@@ -30,7 +30,7 @@ export const registrarAsistente = async (persona: PreregistroData) => {
     try {
         const docRef = await collectionRef.add(persona);
         console.log('Asistente registrado con ID:', docRef.id);
-        return true; // Retorna el ID del documento creado
+        return {id:docRef.id}; // Retorna el ID del documento creado
     } catch (error) {
         console.error('Error al registrar asistente:', error);
         return false; // Retorna false en caso de error

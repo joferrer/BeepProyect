@@ -4,3 +4,4 @@ files/
 store/
 TODO.md
 build/
+.env2

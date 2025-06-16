@@ -4,41 +4,46 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>BEEP - Registro</title>
+        <link rel="shortcut icon" href="images/Logobeep.png" type="image/x-icon">
+        <link rel="stylesheet" href="index.css">
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
         <!-- SweetAlert2 - Cargado globalmente -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <link rel="stylesheet" href="index.css">
     </head>
     <body class="bg-white min-h-screen flex flex-col text-gray-800">
         <!-- Navbar -->
-        <nav class="bg-white shadow-md border-b border-gray-300 p-4 flex justify-between items-center">
-            <span class="titulo text-2xl text-black">BEEP</span>
-            <div class="flex gap-4 text-md">
-                <a
-                    href="#enlazar"
-                    data-page="linkUser.html"
-                    data-script="linkUser.js"
-                    data-section="enlazar"
-                    class="nav-link px-3 py-1 rounded hover:bg-gray-300 hover:text-black transition"
-                >Enlazar</a>
-                <a
-                    href="#nuevo-visitante"
-                    data-page="registrationForm.html"
-                    data-section="nuevo-visitante"
-                    class="nav-link px-3 py-1 rounded hover:bg-gray-300 hover:text-black transition"
-                >Nuevo Visitante</a>
+        <nav class="relative bg-white shadow-md border-b border-gray-300 p-4">
+            <div class="max-w-[1024px] w-full mx-auto flex justify-between items-center relative">
+                <span class="titulo text-2xl mt-4 text-black">BEEP</span>
+                <!-- Imagen centrada en todo el nav -->
+                <div class="absolute left-1/2 transform -translate-x-1/2">
+                    <img src="./images/imsalud.png" alt="Logo" class="h-11 object-contain">
+                </div>
+                <div class="flex gap-4 text-md">
+                    <a
+                        href="#enlazar"
+                        data-page="linkUser.html"
+                        data-script="linkUser.js"
+                        data-section="enlazar"
+                        class="text-xl nav-link px-3 py-1 rounded hover:bg-gray-300 hover:text-black transition"
+                    >Enlazar</a>
+                    <a
+                        href="#nuevo-visitante"
+                        data-page="registrationForm.html"
+                        data-section="nuevo-visitante"
+                        class="text-xl nav-link px-3 py-1 rounded hover:bg-gray-300 hover:text-black transition"
+                    >Nuevo Visitante</a>
+                </div>
             </div>
         </nav>
         <main id="main-content" class="flex-1 p-8 flex justify-center items-center">
             <div class="text-center text-gray-500">
-                <h2 class="text-xl mb-4">Bienvenido a BEEP</h2>
+                <span class="titulo text-xl mb-4 ">Bienvenido a BEEP</span>
                 <p>Selecciona una opción del menú superior</p>
             </div>
         </main>
         <script>
-
-
         // ===== NAVEGACIÓN SPA =====
         const links = document.querySelectorAll(".nav-link");
         const main = document.getElementById("main-content");
@@ -161,8 +166,8 @@
                 actualizarNavegacion(null);
                 main.innerHTML = `
                     <div class="text-center text-gray-500">
-                        <h2 class="text-xl mb-4">Bienvenido a BEEP</h2>
-                        <p>Selecciona una opción del menú superior</p>
+                        <h2 class="titulo text-4xl mb-4">Bienvenido a BEEP</h2>
+                        <p class="text-lg font-light">Selecciona una opción del menú superior</p>
                     </div>
                 `;
                 document.title = 'BEEP - Registro';
@@ -199,4 +204,9 @@
         });
         </script>
     </body>
+    <footer class="bg-white border-t border-gray-300 p-4">
+        <div class="max-w-[1024px] flex w-full mx-auto flex justify-center items-center">
+            <img src="./images/Recurso1.png" alt="Footer Logo" class="w-[200px] object-contain">
+        </div>
+    </footer>
 </html>

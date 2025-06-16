@@ -56,3 +56,15 @@ GET http://localhost:3000/api/asistenciasLocales HTTP/1.1
 ### Registrar asistencias locales en la base de datos
 PATCH http://localhost:3000/api/registrarAsistenciasLocalesEnDb HTTP/1.1
 Content-Type: application/json
+
+
+### Registrar asistente
+POST http://localhost:3000/api/asistente
+Content-Type: application/json
+
+{
+  "NOMBRE_Y_APELLIDOS": "MARIA ISABEL VARGAS CARDENAS",
+  "CEDULA": "1090505060",
+  "CORREO": "contabilidad@imsalud.gov.co",
+  "AREA_O_DEPENDENCIA": "CONTABILIDAD"
+}

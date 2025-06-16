@@ -1,3 +1,5 @@
+import { UsuarioService } from "./usuarioService.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   history.pushState(null, null, location.href);
   window.addEventListener("popstate", function () {
@@ -20,7 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, 200);
 
-  // ✅ Bloquear entrada manual, permitir solo del lector RFID (por velocidad)
   let lastTime = Date.now();
   let buffer = "";
 
@@ -28,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const now = Date.now();
     const diff = now - lastTime;
 
-    // Si la diferencia entre teclas es muy alta, reiniciamos el buffer
     if (diff > 50) buffer = "";
 
     lastTime = now;
@@ -46,9 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 🧠 Lógica de procesamiento del RFID
-  function procesarRFID(valor) {
-    if (procesando || !valor) return;
+  async function procesarRFID(rfid) {
+    if (procesando || !rfid) return;
 
     procesando = true;
     input.disabled = true;
@@ -56,17 +55,21 @@ document.addEventListener("DOMContentLoaded", () => {
     feedback.className =
       "text-yellow-600 font-medium h-8 flex items-center transition-all duration-300 min-h-[2rem]";
 
-    setTimeout(() => {
-      if (valor === "123456") {
-        feedback.textContent = "✅ Bienvenido/a!";
-        feedback.className =
-          "text-green-600 font-semibold h-8 flex items-center transition-all duration-300 min-h-[2rem]";
-      } else {
-        feedback.textContent = "❌ RFID no válido.";
-        feedback.className =
-          "text-red-600 font-semibold h-8 flex items-center transition-all duration-300 min-h-[2rem]";
-      }
+    try {
+      const resultado = await UsuarioService.registrarAsistencia(mesa, rfid);
 
+      feedback.textContent = `✅ ${
+        resultado.mensaje || "Asistencia registrada correctamente"
+      }`;
+      feedback.className =
+        "text-green-600 font-semibold h-8 flex items-center transition-all duration-300 min-h-[2rem]";
+    } catch (error) {
+      feedback.textContent = `❌ ${
+        error.message || "Error al registrar asistencia"
+      }`;
+      feedback.className =
+        "text-red-600 font-semibold h-8 flex items-center transition-all duration-300 min-h-[2rem]";
+    } finally {
       input.disabled = false;
       input.value = "";
       input.focus();
@@ -77,6 +80,6 @@ document.addEventListener("DOMContentLoaded", () => {
         feedback.className =
           "text-lg font-medium h-8 flex items-center transition-all duration-300 min-h-[2rem]";
       }, 1300);
-    }, 1500);
+    }
   }
 });

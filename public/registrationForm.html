@@ -1,53 +1,92 @@
 <!DOCTYPE html>
 <html lang="es">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Registro de Usuario</title>
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-
-<body class="min-h-screen flex items-center justify-center bg-gray-100">
-  <div class="w-full max-w-2xl mx-auto p-8">
-    <h1 class="text-5xl font-bold mb-6 font-[Pacifico]">Nuevo invitado 🤔</h1>
-    <form class="space-y-4">
-
-      <!-- Nombre completo -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Nombre y Apellidos</label>
-        <input type="text" name="nombreCompleto" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-          required />
-      </div>
-
-      <!-- Documento de identidad -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Documento de identidad</label>
-        <input type="text" name="cedula" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
-      </div>
-
-      <!-- Email (opcional) -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Correo electrónico (opcional)</label>
-        <input type="email" name="correo" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" />
-      </div>
-
-      <!-- Área o dependencia -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Área o dependencia</label>
-        <input type="text" name="area" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
-      </div>
-      
-      <!-- Botón de envío -->
-      <div class="pt-4">
-        <button type="submit"
-          class="w-full bg-black hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg shadow">
-          Registrar
-        </button>
-      </div>
-    </form>
-  </div>
-</body>
-
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Registro de Usuario</title>
+        <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- SweetAlert2 -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
+    <body class="min-h-screen flex items-center justify-center bg-gray-100">
+        <div class="w-full max-w-2xl mx-auto p-8">
+            <h1 class="text-5xl font-bold mb-6 font-[Pacifico]">Nuevo invitado 🤔</h1>
+            <form id="registroForm" class="space-y-4">
+                <!-- Nombre completo -->
+                <div>
+                    <label for="nombreCompleto" class="block text-sm font-medium text-gray-700">Nombre y Apellidos</label>
+                    <input
+                        type="text"
+                        id="nombreCompleto"
+                        name="nombreCompleto"
+                        class="mt-1 block w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        required
+                        autocomplete="name"
+                    >
+                </div>
+                <!-- Documento de identidad -->
+                <div>
+                    <label for="cedula" class="block text-sm font-medium text-gray-700">Documento de identidad</label>
+                    <input
+                        type="text"
+                        id="cedula"
+                        name="cedula"
+                        class="mt-1 block w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+                <!-- Email (opcional) -->
+                <div>
+                    <label for="correo" class="block text-sm font-medium text-gray-700">Correo electrónico (opcional)</label>
+                    <input
+                        type="email"
+                        id="correo"
+                        name="correo"
+                        class="mt-1 block w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        autocomplete="email"
+                    >
+                </div>
+                <!-- Área o dependencia -->
+                <div>
+                    <label for="area" class="block text-sm font-medium text-gray-700">Área o dependencia</label>
+                    <input
+                        type="text"
+                        id="area"
+                        name="area"
+                        class="mt-1 block w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        required
+                        autocomplete="organization"
+                    >
+                </div>
+                <!-- Botón de envío -->
+                <div class="pt-6">
+                    <button type="submit" id="submitBtn" class="w-full bg-black hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                        <span id="submitText">Registrar</span>
+                        <div id="submitSpinner" class="hidden inline-flex items-center">
+                            <svg
+                                class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                    class="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    stroke-width="4"
+                                ></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Registrando...
+                        </div>
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+    </body>
 </html>

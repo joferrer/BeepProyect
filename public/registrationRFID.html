@@ -6,15 +6,27 @@
         <title>Registro de Asistencia</title>
         <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link rel="stylesheet" href="index.css">
     </head>
-    <body class="flex items-center justify-center min-h-screen bg-gray-100">
+    <body class="flex items-center justify-center min-h-screen bg-gray-100 relative">
+        <!-- Botón Escanear estilo sidebar arriba a la derecha -->
+        <button id="scan" class="fixed top-5 right-5 bg-gradient-to-r from-black to-gray-800 text-white px-5 py-3 rounded-full shadow-lg flex items-center gap-2 hover:scale-105 hover:shadow-2xl transition-transform duration-300 z-50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+            Registro Manual
+        </button>
+    
+        <!-- Contenedor principal -->
         <div class="flex flex-col md:flex-row bg-white p-6 md:p-10 space-y-8 md:space-y-0 md:space-x-12 max-w-4xl w-full">
+            <!-- Imagen -->
             <div class="flex items-center justify-center w-full md:w-1/2">
                 <img src="images/beep1.png" alt="Lector de tarjetas" class="max-w-full h-auto">
             </div>
+    
+            <!-- Información -->
             <div class="flex flex-col justify-center w-full md:w-1/2 space-y-4">
-                <button id="scan">Escanear</button>
                 <h1 class="titulo text-5xl font-bold">
                     Hola!
                     <span>👋</span>
@@ -42,23 +54,16 @@
         <div id="modalBuscador" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
             <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-lg relative">
                 <button id="cerrarModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl">&times;</button>
-                <h2 class="text-2xl font-bold mb-4">Buscar Invitado</h2>
-                <div id="loadingUsuarios" class="text-gray-600 text-sm flex items-center gap-2 mb-4">
-                    <svg class="animate-spin h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                    </svg>
-                    <span>Cargando asistentes...</span>
-                  </div>
+                <h2 class="text-2xl font-bold mb-4">Registrar Asistencia Manual</h2>
                 <!-- Buscador -->
                 <div class="relative">
                     <label for="buscador" class="block text-gray-700 font-medium mb-1">
-                        Nombre o Documento
+                        Documento
                     </label>
                     <input
                         type="text"
                         id="buscador"
-                        placeholder="Buscar invitado por nombre o documento..."
+                        placeholder="Registro con el documento..."
                         class="w-full p-2 rounded-md bg-gray-100 text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black"
                         autocomplete="off"
                     >
@@ -74,7 +79,7 @@
                 <p id="feedbackModal" class="text-sm mt-2 h-5 text-gray-600"></p>
             </div>
         </div>
-        <script src="registrationRFID.js"></script>
+        <script src="registrationRFID.js" type="module"></script>
         <script src="findManually.js" type="module"></script>
     </body>
 </html>

@@ -1,13 +1,28 @@
 // mesa.js
 
 document.addEventListener("DOMContentLoaded", () => {
+  const mesas = [
+    "Ruleta de la Calidad",
+    "Dale la vuelta a la Calidad",
+    "Vibra con el Tejo",
+    "Fútbol en Tela",
+    "Zona de Bienvenida",
+    "Estrategia IAMII",
+    "EAE Mejoramiento de la calidad: Eje Humanización de la atención",
+    "EAE Gerencia de la información y gestión de la tecnología: Eje Gestión de la tecnología",
+    "EAE Gerencia de Ambiente Físico: Eje Responsabilidad Social",
+    "EAE Gerencia de Talento Humano: Eje Transformación Cultural",
+    "EAE Direccionamiento y Gerencia: Eje Enfoque y Gestión del Riesgo",
+    "EAE Proceso de Atención al Cliente Asistencial: Eje Gestión Clínica Excelente y Segura",
+  ];
+
   const select = document.getElementById("mesaSelect");
-  for (let i = 1; i <= 14; i++) {
+  mesas.forEach((nombreMesa) => {
     const option = document.createElement("option");
-    option.value = `Mesa ${i}`;
-    option.textContent = `Mesa ${i}`;
+    option.value = nombreMesa;
+    option.textContent = nombreMesa;
     select.appendChild(option);
-  }
+  });
 });
 
 function continuar() {

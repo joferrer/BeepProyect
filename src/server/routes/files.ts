@@ -4,11 +4,11 @@ import { AsistenciaLocal } from '../../interfaces';
 
 const filePath = path.join(__dirname, '../../../files/asistencias.json');
 
-export const guardarAsistenciaLocal = async (rfid: string,mesa:string,nombre="") => {
+export const guardarAsistenciaLocal = async (rfid: string,mesa:string,cedula="") => {
   const nuevaAsistencia = {
     mesa,
     rfid,
-    nombre: nombre || undefined, // Si no se proporciona nombre, se deja como undefined
+    cedula: cedula || undefined, // Si no se proporciona nombre, se deja como undefined
     fecha: new Date().toISOString(), // fecha en formato ISO
   };
 

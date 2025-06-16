@@ -45,8 +45,8 @@ POST http://localhost:3000/api/registrarAsistenciaLocal
 Content-Type: application/json
 
 {
-  "nombre": "Jeison Ferrer",
-  "mesa": "Mesa 3"
+  "cedula": "101020202",
+  "mesa": "Mesa 6"
 }
 
 

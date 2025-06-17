@@ -5,7 +5,6 @@ function iniciarRegistro() {
   const submitBtn = document.getElementById("submitBtn");
   const submitText = document.getElementById("submitText");
   const submitSpinner = document.getElementById("submitSpinner");
-
   if (!form) {
     console.error("No se encontró el formulario");
     return;
@@ -16,7 +15,7 @@ function iniciarRegistro() {
 
     submitBtn.disabled = true;
     submitText.classList.add("hidden");
-    submitSpinner.classList.remove("hidden");
+    document.getElementById("submitSpinner").style.display = "inline-flex";
 
     const usuario = {
       NOMBRE_Y_APELLIDOS: form.nombreCompleto.value.trim(),
@@ -44,7 +43,7 @@ function iniciarRegistro() {
     } finally {
       submitBtn.disabled = false;
       submitText.classList.remove("hidden");
-      submitSpinner.classList.add("hidden");
+      document.getElementById("submitSpinner").style.display = "none";
     }
   });
 }

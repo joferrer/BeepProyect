@@ -19,6 +19,7 @@ export interface AsistenciaLocal {
   rfid?: string; // Identificador RFID del asistente
   fecha: string; // Fecha en formato ISO
   nombre?: string; // Nombre del asistente, opcional
+  cedula?: string; // Cédula del asistente, opcional
 }
 
 export interface AsistenteData extends Omit<PreregistroData, 'NUMERO'> {

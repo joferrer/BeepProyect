@@ -141,3 +141,20 @@ export const registrarAsistenciaPorNombre = async (nombre: string, asistencia: {
         return false;
     }
 }
+
+export const registrarAsistenciaPorCedula = async (cedula: string | number, asistencia: { fecha: Date, mesa: string }) => {
+    try {
+        const snapshot = await collectionRef.where('CEDULA', '==', cedula).get();
+
+        if (snapshot.empty) {
+            console.error('Asistente con cédula no encontrado');
+            return false;
+        }
+
+        const asistenteId = snapshot.docs[0].id;
+        return await registrarAsistencia(asistenteId, asistencia);
+    } catch (error) {
+        console.error('Error al registrar asistencia por cédula:', error);
+        return false;
+    }
+}

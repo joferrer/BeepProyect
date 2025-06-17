@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { AsistenciaLocal } from '../../interfaces';
+import { AsistenciaLocal, AsistenteData } from '../../interfaces';
 
 const filePath = path.join(__dirname, '../../../files/asistencias.json');
 
@@ -73,4 +73,35 @@ export const registrarErroresEnElCargadoDeAsistencias = async (errores: Asistenc
     } catch (error) {
         console.error('Error al registrar errores:', error);
     }
+}
+
+function obtenerAsistentesFrecuentes(asistentes: AsistenteData[]): string[] {
+  const mesasExcluidas = [
+    "Ruleta de la Calidad",
+    "Dale la vuelta a la Calidad",
+    "Vibra con el Tejo",
+    "Fútbol en Tela"
+  ];
+
+  return asistentes
+    .filter(asistente => {
+      const asistenciasValidas = asistente.ASISTENCIA?.filter(
+        a => !mesasExcluidas.includes(a.mesa)
+      ) || [];
+
+      return asistenciasValidas.length > 6;
+    })
+    .map(asistente => asistente.NOMBRE_Y_APELLIDOS);
+}
+
+export async function guardarAsistentesFrecuentesEnTxt(asistentes: AsistenteData[]) {
+  try {
+    const nombresFrecuentes = obtenerAsistentesFrecuentes(asistentes);
+    const contenido = nombresFrecuentes.join('\n');
+    const ruta = path.resolve(__dirname, '../../../files/asistentes_frecuentes.txt');
+    await fs.promises.writeFile(ruta, contenido, 'utf-8');
+    console.log(`Archivo guardado en: ${ruta}`);
+  } catch (error) {
+    console.error('Error al guardar el archivo de asistentes frecuentes:', error);
+  }
 }

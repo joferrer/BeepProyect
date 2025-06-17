@@ -68,3 +68,13 @@ Content-Type: application/json
   "CORREO": "contabilidad@imsalud.gov.co",
   "AREA_O_DEPENDENCIA": "CONTABILIDAD"
 }
+
+
+### Registrar asistencias locales en la base de datos
+PATCH http://localhost:3000/api/registrarAsistenciasLocalesEnDb HTTP/1.1
+
+### Generar Excel de asistentes
+GET http://localhost:3000/api/asistentesExcel HTTP/1.1
+
+### Generar Excel de asistentes
+GET http://localhost:3000/api/asistentesRifa HTTP/1.1

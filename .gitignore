@@ -5,3 +5,4 @@ public/store/
 TODO.md
 build/
 .env2
+.envProd

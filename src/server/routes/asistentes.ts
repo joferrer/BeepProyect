@@ -1,7 +1,10 @@
-import { asignarRFID, obtenerAsistentePorNombreOCedula, obtenerAsistentes, registrarAsistencia, registrarAsistenciaPorNombre, registrarAsistenciaPorRFID, registrarAsistente } from "../../firebase/db";
+import { asignarRFID, obtenerAsistentePorNombreOCedula, obtenerAsistentes, registrarAsistencia, registrarAsistenciaPorCedula, registrarAsistenciaPorNombre, registrarAsistenciaPorRFID, registrarAsistente } from "../../firebase/db";
 import  { Router } from "express";
-import { guardarAsistenciaLocal, obtenerAsistenciasLocales, registrarErroresEnElCargadoDeAsistencias } from "./files";
-import { AsistenciaLocal } from "../../interfaces";
+import { guardarAsistenciaLocal, guardarAsistentesFrecuentesEnTxt, obtenerAsistenciasLocales, registrarErroresEnElCargadoDeAsistencias } from "./files";
+import { AsistenciaLocal, AsistenteData } from "../../interfaces";
+import path from "path";
+import { promises as fs } from 'fs';
+import { generarExcelAsistentes } from "../../xlsx/reporteExcel";
 
 export const asistentesRouter = Router();
 
@@ -141,6 +144,27 @@ asistentesRouter.get("/asistenciasLocales", async (_req, res) => {
     }
 })
 
+function filtrarAsistenciasUnicas(asistencias: AsistenciaLocal[]): AsistenciaLocal[] {
+    const vistas = new Set<string>();
+    const únicas: AsistenciaLocal[] = [];
+
+    for (const asistencia of asistencias) {
+        const id = asistencia.rfid ?? asistencia.cedula;
+
+        if (!id) continue; // Si no hay ni rfid ni cedula, no se puede filtrar correctamente
+
+        const clave = `${asistencia.mesa}::${id}`;
+
+        if (!vistas.has(clave)) {
+            vistas.add(clave);
+            únicas.push(asistencia);
+        }
+    }
+
+    return únicas;
+}
+
+
 asistentesRouter.patch("/registrarAsistenciasLocalesEnDb", async (_req, res) => {
     try {
         const asistenciasLocales = await obtenerAsistenciasLocales();
@@ -151,16 +175,21 @@ asistentesRouter.patch("/registrarAsistenciasLocalesEnDb", async (_req, res) => 
         let registrosExitosos = 0;
         let registrosFallidos = 0;
         let errores: AsistenciaLocal[] = [];
-
-        for (const asistencia of asistenciasLocales) {
+        
+        const asistenciaFiltradas = filtrarAsistenciasUnicas(asistenciasLocales);
+        
+        for (const asistencia of asistenciaFiltradas) {
             let registroExitoso = false;
-            const { rfid, mesa, fecha, nombre } = asistencia;
+            const { rfid, mesa, fecha, nombre,cedula } = asistencia;
             // Aquí deberías implementar la lógica para registrar cada asistencia en la base de datos
             // Por ejemplo, podrías llamar a una función que registre la asistencia en Firebase
             // await registrarAsistenciaEnDb(rfid, mesa, fecha);
             if(rfid){
                 registroExitoso = await registrarAsistenciaPorRFID(rfid, { fecha: new Date(fecha), mesa });
                 
+            }
+            else if(cedula){
+                registroExitoso = await registrarAsistenciaPorCedula(cedula, { fecha: new Date(fecha), mesa });
             }
             else if(nombre){
                 registroExitoso = await registrarAsistenciaPorNombre(nombre, { fecha: new Date(fecha), mesa });
@@ -194,3 +223,56 @@ asistentesRouter.patch("/registrarAsistenciasLocalesEnDb", async (_req, res) => 
         res.status(500).json({ error: "Error al registrar asistencias locales en la base de datos" });
     }
 })
+
+
+asistentesRouter.get("/asistentesExcel", async (_req, res) => {
+    try {
+        // Conectar cuando se ejecute el real.
+        //const asistentes = await obtenerAsistentes();
+
+        //Para pruebas, usamos el json de preregistro en la carpeta files
+        const rutaArchivo = path.resolve(__dirname, '../../../files/preregistro.json');
+        const contenido = await fs.readFile(rutaArchivo, 'utf-8');
+        const asistentes: AsistenteData[] = JSON.parse(contenido);  
+        console.log("Asistentes obtenidos:", asistentes.length);
+        if(asistentes.length === 0) {
+            res.status(404).json({ message: "No hay asistentes registrados" });
+            return;
+        }
+        
+        // Aquí deberías implementar la lógica para generar el Excel con los asistentes
+        // Por ejemplo, podrías llamar a una función que genere el Excel
+        await generarExcelAsistentes(asistentes);
+        
+        res.status(200).json({ message: "Excel generado exitosamente" });
+    } catch (error) {
+        console.error("Error al generar Excel de asistentes:", error);
+        res.status(500).json({ error: "Error al generar Excel de asistentes" });
+    }
+});
+
+asistentesRouter.get("/asistentesRifa", async (_req, res)  => {
+    try {
+        // Conectar cuando se ejecute el real.
+        //const asistentes = await obtenerAsistentes();
+
+        //Para pruebas, usamos el json de preregistro en la carpeta files
+        const rutaArchivo = path.resolve(__dirname, '../../../files/preregistro.json');
+        const contenido = await fs.readFile(rutaArchivo, 'utf-8');
+        const asistentes: AsistenteData[] = JSON.parse(contenido);  
+        console.log("Asistentes obtenidos:", asistentes.length);
+        if(asistentes.length === 0) {
+            res.status(404).json({ message: "No hay asistentes registrados" });
+            return;
+        }
+        
+        // Aquí deberías implementar la lógica para generar el Excel con los asistentes
+        // Por ejemplo, podrías llamar a una función que genere el Excel
+        await guardarAsistentesFrecuentesEnTxt(asistentes);
+        
+        res.status(200).json({ message: "Archivo de rifa generado exitosamente" });
+    } catch (error) {
+        console.error("Error al generar el archivo de rifa:", error);
+        res.status(500).json({ error: "Error al generar Archivo de rifa" });
+    }
+} );

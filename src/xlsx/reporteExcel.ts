@@ -24,16 +24,37 @@ export async function leerAsistenciasLocales(): Promise<AsistenciaLocal[]> {
 // src/utils/generarExcelAsistentes.ts
 
 export async function generarExcelAsistentes(asistentes: AsistenteData[], nombreArchivo = 'asistencias.xlsx') {
-  const filas = asistentes.flatMap((asistente) =>
-    (asistente.ASISTENCIA || []).map((asistencia) => ({
-      NOMBRE_Y_APELLIDOS: asistente.NOMBRE_Y_APELLIDOS,
-      CEDULA: asistente.CEDULA,
-      AREA_O_DEPENDENCIA: asistente.AREA_O_DEPENDENCIA,
-      CORREO: asistente.CORREO || '',
-      MESA: asistencia.mesa,
-      FECHA: formatearFechaYHora(asistencia.fecha)// Solo fecha YYYY-MM-DD
-    }))
-  );
+  
+  const filas = asistentes.flatMap((asistente) => {
+    const asistencias = asistente.ASISTENCIA || [];
+
+    // Caso 1: Tiene asistencias registradas
+    if (asistencias.length > 0) {
+      return asistencias.map((asistencia) => ({
+        NOMBRE_Y_APELLIDOS: asistente.NOMBRE_Y_APELLIDOS,
+        CEDULA: asistente.CEDULA,
+        AREA_O_DEPENDENCIA: asistente.AREA_O_DEPENDENCIA,
+        CORREO: asistente.CORREO || '',
+        MESA: asistencia.mesa,
+        FECHA: formatearFechaYHora(asistencia.fecha)
+      }));
+    }
+
+    // Caso 2: No tiene asistencias, pero sí tiene RFID
+    if (asistente.RFID) {
+      return {
+        NOMBRE_Y_APELLIDOS: asistente.NOMBRE_Y_APELLIDOS,
+        CEDULA: asistente.CEDULA,
+        AREA_O_DEPENDENCIA: asistente.AREA_O_DEPENDENCIA,
+        CORREO: asistente.CORREO || '',
+        MESA: 'ZONA DE BIENVENIDA',
+        FECHA: ''
+      };
+    }
+
+    // Caso 3: No tiene asistencias ni RFID → no se incluye
+    return [];
+  });
 
   const hoja = XLSX.utils.json_to_sheet(filas);
   const libro = XLSX.utils.book_new();

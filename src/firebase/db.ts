@@ -144,7 +144,7 @@ export const registrarAsistenciaPorNombre = async (nombre: string, asistencia: {
 
 export const registrarAsistenciaPorCedula = async (cedula: string | number, asistencia: { fecha: Date, mesa: string }) => {
     try {
-        const snapshot = await collectionRef.where('CEDULA', '==', cedula).get();
+        const snapshot = await collectionRef.where('CEDULA', '==', Number(cedula)).get();
 
         if (snapshot.empty) {
             console.error('Asistente con cédula no encontrado');

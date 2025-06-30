@@ -89,7 +89,7 @@ function obtenerAsistentesFrecuentes(asistentes: AsistenteData[]): string[] {
         a => !mesasExcluidas.includes(a.mesa)
       ) || [];
 
-      return asistenciasValidas.length > 6;
+      return asistenciasValidas.length >=1;
     })
     .map(asistente => asistente.NOMBRE_Y_APELLIDOS);
 }
